@@ -18,6 +18,37 @@ export const uploadImage = async (imageFile) => {
     }
 };
 
+export const filterProducts = (
+    products,
+    search,
+    selectedCategories,
+    priceRange
+) => {
+    return products.filter((product) => {
+        if (
+            search &&
+            !product.productName.toLowerCase().includes(search.toLowerCase())
+        ) {
+            return false;
+        }
+        // ["Sneakers"] "Shirt"
+        else if (
+            selectedCategories.length > 0 &&
+            !selectedCategories.includes(product.category)
+        ) {
+            return false;
+        } else if (
+            product.price < priceRange[0] ||
+            product.price > priceRange[1]
+        ) {
+            return false;
+        }
+
+        return true;
+        // true or false
+    });
+};
+
 // user image -> storage -> path -> database
 // database -> path -> fetch url from storage -> componennt
 

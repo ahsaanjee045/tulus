@@ -8,6 +8,7 @@ import {
     Woman,
 } from "@mui/icons-material";
 import {
+    Badge,
     Box,
     Button,
     Divider,
@@ -27,9 +28,11 @@ import {
 import React, { useContext, useState } from "react";
 import { FirebaseContext } from "../context/FirebaseContextProvider";
 import { Link, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Header = () => {
     const navigate = useNavigate();
+    const { cartItems } = useSelector((state) => state.cartState);
     const { userState, logoutUser } = useContext(FirebaseContext);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const handleOpen = () => setDrawerOpen(true);
@@ -132,21 +135,28 @@ const Header = () => {
                     TULOS
                 </Typography>
             </Box>
-            <Box display={"flex"} alignItems={"center"} gap={"10px"}>
-                <IconButton
-                    onClick={() => {
-                        userState ? navigate("/cart") : navigate("/login");
-                    }}
-                    sx={{
-                        ":hover": {
-                            bgcolor: "#00000012",
-                        },
-                    }}
-                >
-                    <ShoppingBagOutlined
-                        sx={{ color: "black", fontSize: "20px" }}
-                    />
-                </IconButton>
+            <Box display={"flex"} alignItems={"center"} gap={"20px"}>
+                <Badge badgeContent={cartItems.length} sx={{
+                    color : "#fff",
+                    "& .MuiBadge-badge": {
+                        backgroundColor : "#000"
+                    }
+                }}>
+                    <IconButton
+                        onClick={() => {
+                            userState ? navigate("/cart") : navigate("/login");
+                        }}
+                        sx={{
+                            ":hover": {
+                                bgcolor: "#00000012",
+                            },
+                        }}
+                    >
+                        <ShoppingBagOutlined
+                            sx={{ color: "black", fontSize: "20px" }}
+                        />
+                    </IconButton>
+                </Badge>
                 {userState ? (
                     <>
                         <Button

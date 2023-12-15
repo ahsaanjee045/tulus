@@ -14,11 +14,37 @@ import { FirebaseContext } from "../context/FirebaseContextProvider";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 import { useSelector } from "react-redux";
+import { filterProducts } from "../utils/utils";
 
 const Products = () => {
+    const [search, setSearch] = useState("");
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [priceRange, setPriceRange] = useState([0, 5000]);
     const { products, loading, error } = useSelector(
         (state) => state.productState
     );
+    const { categories } = useSelector((state) => state.categoryState);
+
+    const handleSelectedCategories = (e) => {
+        let copySelectedCategories = [...selectedCategories];
+        if (e.target.checked) {
+            copySelectedCategories.push(e.target.value);
+        } else {
+            let index = copySelectedCategories.findIndex(
+                (c) => c === e.target.value
+            );
+            copySelectedCategories.splice(index, 1);
+        }
+        setSelectedCategories(copySelectedCategories);
+    };
+
+    let filteredProducts = filterProducts(
+        products,
+        search,
+        selectedCategories,
+        priceRange
+    );
+
     return (
         <Box
             sx={{
@@ -45,6 +71,10 @@ const Products = () => {
                         }}
                     >
                         <TextField
+                            value={search}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                            }}
                             placeholder="Search Products"
                             size="small"
                             fullWidth
@@ -69,12 +99,29 @@ const Products = () => {
                         </Box>
                         <Box
                             sx={{
+                                mt: "10px",
                                 display: "flex",
                                 flexDirection: "column",
                                 gap: "5px",
                             }}
                         >
-                            <FormControlLabel
+                            {categories?.map((category) => {
+                                return (
+                                    <FormControlLabel
+                                        key={category.id}
+                                        label={category.categoryName}
+                                        control={
+                                            <Checkbox
+                                                value={category.categoryName}
+                                                onChange={
+                                                    handleSelectedCategories
+                                                }
+                                            />
+                                        }
+                                    />
+                                );
+                            })}
+                            {/* <FormControlLabel
                                 label="Shirts"
                                 control={<Checkbox />}
                             />
@@ -89,7 +136,7 @@ const Products = () => {
                             <FormControlLabel
                                 label="Sneaker"
                                 control={<Checkbox />}
-                            />
+                            /> */}
                         </Box>
                     </Box>
                     <Box
@@ -116,8 +163,14 @@ const Products = () => {
                             }}
                         >
                             <Slider
+                                min={0}
+                                max={5000}
+                                step={200}
                                 size="small"
-                                value={[0, 10000]}
+                                onChange={(e, value) => {
+                                    setPriceRange(value);
+                                }}
+                                value={priceRange}
                                 valueLabelDisplay="auto"
                                 getAriaValueText={() => "Price"}
                             />
@@ -152,12 +205,13 @@ const Products = () => {
                                     pl: "20px",
                                 }}
                             >
-                                Showing 8 of 19 results
+                                Showing {filteredProducts.length} of{" "}
+                                {products.length} results
                             </Typography>
                         </Box>
-                        <Box>
+                        <Box mt={4}>
                             <Grid container minHeight={"300px"}>
-                                {products.map((product) => {
+                                {filteredProducts?.map((product) => {
                                     return (
                                         <Grid
                                             key={product.id}
@@ -180,6 +234,20 @@ const Products = () => {
                                         </Grid>
                                     );
                                 })}
+                                {filteredProducts.length < 1 && (
+                                    <Grid item xs={12} mt={5}>
+                                        <Typography
+                                            variant="h6"
+                                            sx={{
+                                                fontSize: "14px",
+                                                fontWeight: "bold",
+                                                textAlign: "center",
+                                            }}
+                                        >
+                                            Sorry! No Products Found.
+                                        </Typography>
+                                    </Grid>
+                                )}
                                 {loading && (
                                     <Grid
                                         item

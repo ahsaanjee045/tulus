@@ -6,8 +6,10 @@ import preview from "../assets/preview.png";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleProduct } from "../slices/productSlice";
 import { ClipLoader } from "react-spinners";
+import { addProductToCart } from "../slices/cartSlice";
 
 const SingleProductPage = () => {
+    const { userState } = useContext(FirebaseContext);
     const dispatch = useDispatch();
     const { id } = useParams();
     const { loading, product } = useSelector((state) => state.productState);
@@ -19,34 +21,35 @@ const SingleProductPage = () => {
 
     const handleAddToCart = async () => {
         let data = {
-            productid: id,
+            productId: id,
             productName: product.productName,
             price: product.price,
             qty: qty,
+            userId: userState?.uid,
         };
 
         try {
-            let res = await addProductToCart(data);
-            if (res) {
-                alert("Product added to cart successfully");
-                setQty(1);
-            }
+            dispatch(addProductToCart(data));
         } catch (error) {
             console.log("ERROR IN SINGLE PRODUCT COMPONENT", error);
         }
     };
 
+
+
     if (loading) {
-        return <Box
-        sx={{
-            minHeight : "500px",
-            display :"flex",
-            alignItems :"center",
-            justifyContent : "center",
-        }}
-        >
-            <ClipLoader size={30} color="#000"/>
-        </Box>;
+        return (
+            <Box
+                sx={{
+                    minHeight: "500px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
+                <ClipLoader size={30} color="#000" />
+            </Box>
+        );
     }
 
     return (

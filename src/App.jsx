@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import SignUp from "./pages/auth/Singup";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
@@ -19,12 +19,21 @@ import ProductsByGender from "./pages/ProductsByGender";
 import SingleProductPage from "./pages/SingleProductPage";
 import { getAllProduct } from "./slices/productSlice";
 import { useDispatch } from "react-redux";
+import { getAllCategories } from "./slices/categorySlice";
+import { getAllCartProducts } from "./slices/cartSlice";
+import { FirebaseContext } from "./context/FirebaseContextProvider";
 
 const App = () => {
     const dispatch = useDispatch();
+    const { userState } = useContext(FirebaseContext);
     useEffect(() => {
         dispatch(getAllProduct());
+        dispatch(getAllCategories());
     }, []);
+
+    useEffect(() => {
+        userState && dispatch(getAllCartProducts(userState.uid));
+    }, [userState]);
 
     return (
         <div>

@@ -41,10 +41,6 @@ const AddProduct = () => {
         (state) => state.productState
     );
 
-    useEffect(() => {
-        dispatch(getAllCategories());
-    }, []);
-
     const handleAddProduct = async () => {
         if (!productData.image) {
             alert("Product image must be selected");
